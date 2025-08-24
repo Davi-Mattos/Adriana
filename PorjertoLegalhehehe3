@@ -1,0 +1,208 @@
+
+// Classe base
+class Agendamento {
+    protected String nomePet;
+    protected String especie;
+    protected String nomeDono;
+    protected String telefoneDono;
+    protected String horario;
+    protected String servicoAdicional;
+
+    public Agendamento(String nomePet, String especie, String nomeDono, String telefoneDono, String horario, String servicoAdicional) {
+        this.nomePet = nomePet;
+        this.especie = especie;
+        this.nomeDono = nomeDono;
+        this.telefoneDono = telefoneDono;
+        this.horario = horario;
+        this.servicoAdicional = servicoAdicional;
+    }
+
+    public String getHorario() {
+        return horario;
+    }
+
+    public void setNomePet(String nomePet) {
+        this.nomePet = nomePet;
+    }
+
+    public void setEspecie(String especie) {
+        this.especie = especie;
+    }
+
+    public void setNomeDono(String nomeDono) {
+        this.nomeDono = nomeDono;
+    }
+
+    public void setTelefoneDono(String telefoneDono) {
+        this.telefoneDono = telefoneDono;
+    }
+
+    public void setServicoAdicional(String servicoAdicional) {
+        this.servicoAdicional = servicoAdicional;
+    }
+
+    public String toString() {
+        return "[Pet: " + nomePet + " | Espécie: " + especie + 
+               " | Dono: " + nomeDono + " | Tel: " + telefoneDono + 
+               " | Horário: " + horario + 
+               (servicoAdicional != null ? " | Serviço extra: " + servicoAdicional : "") + "]";
+    }
+}
+
+// Subclasse Banho Simples
+class BanhoSimples extends Agendamento {
+    public BanhoSimples(String nomePet, String especie, String nomeDono, String telefoneDono, String horario) {
+        super(nomePet, especie, nomeDono, telefoneDono, horario, "Banho Simples");
+    }
+}
+
+// Subclasse Banho com Tosa
+class BanhoComTosa extends Agendamento {
+    public BanhoComTosa(String nomePet, String especie, String nomeDono, String telefoneDono, String horario) {
+        super(nomePet, especie, nomeDono, telefoneDono, horario, "Banho + Tosa");
+    }
+}
+
+// Classe responsável por gerenciar os agendamentos
+class AgendaManager {
+    private static Agendamento[] agenda = new Agendamento[10];
+
+    public static void agendar(Agendamento ag) {
+        for (int i = 0; i < agenda.length; i++) {
+            if (agenda[i] != null && agenda[i].getHorario().equals(ag.getHorario())) {
+                System.out.println(" Já existe um agendamento nesse horário!");
+                return;
+            }
+        }
+        for (int i = 0; i < agenda.length; i++) {
+            if (agenda[i] == null) {
+                agenda[i] = ag;
+                System.out.println(" Agendamento realizado com sucesso!");
+                return;
+            }
+        }
+        System.out.println(" Agenda cheia!");
+    }
+
+    public static void listar() {
+        System.out.println(" Agenda do dia:");
+        for (int i = 0; i < agenda.length; i++) {
+            if (agenda[i] != null) {
+                System.out.println((i+1) + " - " + agenda[i]);
+            } else {
+                System.out.println((i+1) + " - [Horário livre]");
+            }
+        }
+    }
+
+    public static void editar(int pos, String novoNomePet, String novaEspecie, String novoDono, String novoTelefone, String novoServico) {
+        if (pos >= 0 && pos < agenda.length && agenda[pos] != null) {
+            agenda[pos].setNomePet(novoNomePet);
+            agenda[pos].setEspecie(novaEspecie);
+            agenda[pos].setNomeDono(novoDono);
+            agenda[pos].setTelefoneDono(novoTelefone);
+            agenda[pos].setServicoAdicional(novoServico);
+            System.out.println(" Agendamento atualizado com sucesso!");
+        } else {
+            System.out.println(" Não existe agendamento nesse horário.");
+        }
+    }
+
+    public static void excluir(int pos) {
+        if (pos >= 0 && pos < agenda.length && agenda[pos] != null) {
+            agenda[pos] = null;
+            System.out.println(" Agendannmento excluído!");
+        } else {
+            System.out.println(" Não existe agendamento nesse horário.");
+        }
+    }
+}
+
+// Classe Principal
+
+
+public class Principal {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int opcao;
+
+        do {
+            System.out.println("\n===== PET SHOP - MENU =====");
+            System.out.println("1 - Agendar banho");
+            System.out.println("2 - Consultar agenda");
+            System.out.println("3 - Editar agendamento");
+            System.out.println("4 - Excluir agendamento");
+            System.out.println("5 - Sair");
+            System.out.print("Escolha: ");
+            opcao = sc.nextInt();
+            sc.nextLine();
+
+            switch (opcao) {
+                case 1:
+                    System.out.print("Nome do Pet: ");
+                    String nomePet = sc.nextLine();
+                    System.out.print("Espécie: ");
+                    String especie = sc.nextLine();
+                    System.out.print("Nome do Dono: ");
+                    String nomeDono = sc.nextLine();
+                    System.out.print("Telefone do Dono: ");
+                    String tel = sc.nextLine();
+                    System.out.print("Horário do banho (ex: 14:00): ");
+                    String horario = sc.nextLine();
+                    System.out.print("Tipo de serviço (1 - Banho simples, 2 - Banho + Tosa): ");
+                    int tipo = sc.nextInt();
+                    sc.nextLine();
+
+                    Agendamento ag;
+                    if (tipo == 1) {
+                        ag = new BanhoSimples(nomePet, especie, nomeDono, tel, horario);
+                    } else {
+                        ag = new BanhoComTosa(nomePet, especie, nomeDono, tel, horario);
+                    }
+
+                    AgendaManager.agendar(ag);
+                    break;
+
+                case 2:
+                    AgendaManager.listar();
+                    break;
+
+                case 3:
+                    AgendaManager.listar();
+                    System.out.print("Digite o número do horário que deseja editar: ");
+                    int posEditar = sc.nextInt() - 1;
+                    sc.nextLine();
+
+                    System.out.print("Novo nome do Pet: ");
+                    String novoPet = sc.nextLine();
+                    System.out.print("Nova espécie: ");
+                    String novaEspecie = sc.nextLine();
+                    System.out.print("Novo dono: ");
+                    String novoDono = sc.nextLine();
+                    System.out.print("Novo telefone: ");
+                    String novoTel = sc.nextLine();
+                    System.out.print("Novo serviço: ");
+                    String novoServ = sc.nextLine();
+
+                    AgendaManager.editar(posEditar, novoPet, novaEspecie, novoDono, novoTel, novoServ);
+                    break;
+
+                case 4:
+                    AgendaManager.listar();
+                    System.out.print("Digite o número do horário que deseja excluir: ");
+                    int posExcluir = sc.nextInt() - 1;
+                    AgendaManager.excluir(posExcluir);
+                    break;
+
+                case 5:
+                    System.out.println("Encerrando...");
+                    break;
+
+                default:
+                    System.out.println(" Opção inválida!");
+            }
+        } while (opcao != 5);
+
+        sc.close();
+    }
+}
