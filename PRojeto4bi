@@ -1,0 +1,202 @@
+import java.sql.*;
+import java.util.Scanner;
+
+public class SistemaGerenciamentoAlunos {
+    
+    // Configurações de conexão com o banco de dados
+    private static final String URL = "jdbc:mysql://localhost:3306/escola";
+    private static final String USER = "root";
+    private static final String PASSWORD = "senha";
+    
+    // Método para estabelecer conexão com o banco
+    private static Connection conectar() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+    
+    // 1. INSERIR ALUNO
+    public static void inserirAluno(String nome, String curso, int idade) {
+        String sql = "INSERT INTO alunos (nome, curso, idade) VALUES (?, ?, ?)";
+        
+        try (Connection conn = conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, nome);
+            stmt.setString(2, curso);
+            stmt.setInt(3, idade);
+            
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            if (linhasAfetadas > 0) {
+                System.out.println("\n✓ Aluno inserido com sucesso!");
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao inserir aluno: " + e.getMessage());
+        }
+    }
+    
+    // 2. LISTAR ALUNOS
+    public static void listarAlunos() {
+        String sql = "SELECT * FROM alunos ORDER BY id";
+        
+        try (Connection conn = conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            System.out.println("\n========== LISTA DE ALUNOS ==========");
+            System.out.printf("%-5s %-25s %-20s %-6s%n", "ID", "NOME", "CURSO", "IDADE");
+            System.out.println("-------------------------------------------------------------");
+            
+            boolean encontrou = false;
+            while (rs.next()) {
+                encontrou = true;
+                int id = rs.getInt("id");
+                String nome = rs.getString("nome");
+                String curso = rs.getString("curso");
+                int idade = rs.getInt("idade");
+                
+                System.out.printf("%-5d %-25s %-20s %-6d%n", id, nome, curso, idade);
+            }
+            
+            if (!encontrou) {
+                System.out.println("Nenhum aluno cadastrado.");
+            }
+            System.out.println("=====================================\n");
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar alunos: " + e.getMessage());
+        }
+    }
+    
+    // 3. ATUALIZAR ALUNO
+    public static void atualizarAluno(int id, String nome, String curso, int idade) {
+        String sql = "UPDATE alunos SET nome = ?, curso = ?, idade = ? WHERE id = ?";
+        
+        try (Connection conn = conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, nome);
+            stmt.setString(2, curso);
+            stmt.setInt(3, idade);
+            stmt.setInt(4, id);
+            
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            if (linhasAfetadas > 0) {
+                System.out.println("\n✓ Aluno atualizado com sucesso!");
+            } else {
+                System.out.println("\n✗ Aluno não encontrado com o ID informado.");
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar aluno: " + e.getMessage());
+        }
+    }
+    
+    // 4. EXCLUIR ALUNO
+    public static void excluirAluno(int id) {
+        String sql = "DELETE FROM alunos WHERE id = ?";
+        
+        try (Connection conn = conectar();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setInt(1, id);
+            
+            int linhasAfetadas = stmt.executeUpdate();
+            
+            if (linhasAfetadas > 0) {
+                System.out.println("\n✓ Aluno excluído com sucesso!");
+            } else {
+                System.out.println("\n✗ Aluno não encontrado com o ID informado.");
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao excluir aluno: " + e.getMessage());
+        }
+    }
+    
+    // MENU INTERATIVO
+    public static void exibirMenu() {
+        System.out.println("\n╔════════════════════════════════════╗");
+        System.out.println("║  SISTEMA DE GERENCIAMENTO ALUNOS  ║");
+        System.out.println("╚════════════════════════════════════╝");
+        System.out.println("1 - Inserir aluno");
+        System.out.println("2 - Listar alunos");
+        System.out.println("3 - Atualizar aluno");
+        System.out.println("4 - Excluir aluno");
+        System.out.println("0 - Sair");
+        System.out.print("\nEscolha uma opção: ");
+    }
+    
+    // MÉTODO PRINCIPAL
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        int opcao;
+        
+        do {
+            exibirMenu();
+            opcao = scanner.nextInt();
+            scanner.nextLine(); // Limpar buffer
+            
+            switch (opcao) {
+                case 1: // INSERIR
+                    System.out.println("\n--- INSERIR NOVO ALUNO ---");
+                    System.out.print("Nome: ");
+                    String nome = scanner.nextLine();
+                    System.out.print("Curso: ");
+                    String curso = scanner.nextLine();
+                    System.out.print("Idade: ");
+                    int idade = scanner.nextInt();
+                    scanner.nextLine(); // Limpar buffer
+                    
+                    inserirAluno(nome, curso, idade);
+                    break;
+                    
+                case 2: // LISTAR
+                    listarAlunos();
+                    break;
+                    
+                case 3: // ATUALIZAR
+                    System.out.println("\n--- ATUALIZAR ALUNO ---");
+                    System.out.print("ID do aluno: ");
+                    int idAtualizar = scanner.nextInt();
+                    scanner.nextLine(); // Limpar buffer
+                    System.out.print("Novo nome: ");
+                    String novoNome = scanner.nextLine();
+                    System.out.print("Novo curso: ");
+                    String novoCurso = scanner.nextLine();
+                    System.out.print("Nova idade: ");
+                    int novaIdade = scanner.nextInt();
+                    scanner.nextLine(); // Limpar buffer
+                    
+                    atualizarAluno(idAtualizar, novoNome, novoCurso, novaIdade);
+                    break;
+                    
+                case 4: // EXCLUIR
+                    System.out.println("\n--- EXCLUIR ALUNO ---");
+                    System.out.print("ID do aluno: ");
+                    int idExcluir = scanner.nextInt();
+                    scanner.nextLine(); // Limpar buffer
+                    
+                    System.out.print("Confirma exclusão? (S/N): ");
+                    String confirmacao = scanner.nextLine();
+                    if (confirmacao.equalsIgnoreCase("S")) {
+                        excluirAluno(idExcluir);
+                    } else {
+                        System.out.println("Operação cancelada.");
+                    }
+                    break;
+                    
+                case 0: // SAIR
+                    System.out.println("\nEncerrando sistema... Até logo!");
+                    break;
+                    
+                default:
+                    System.out.println("\n✗ Opção inválida! Tente novamente.");
+            }
+            
+        } while (opcao != 0);
+        
+        scanner.close();
+    }
+}
