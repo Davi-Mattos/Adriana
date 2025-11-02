@@ -1,0 +1,22 @@
+CREATE DATABASE IF NOT EXISTS escola;
+
+-- 2. Selecionar o banco
+USE escola;
+
+-- 3. Criar a tabela alunos
+CREATE TABLE IF NOT EXISTS alunos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    curso VARCHAR(50) NOT NULL,
+    idade INT NOT NULL,
+    data_cadastro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- 4. Inserir alguns dados de exemplo (opcional)
+INSERT INTO alunos (nome, curso, idade) VALUES
+('João Silva', 'Engenharia de Software', 20),
+('Maria Santos', 'Ciência da Computação', 22),
+('Pedro Oliveira', 'Sistemas de Informação', 19);
+
+-- 5. Verificar os dados inseridos
+SELECT * FROM alunos;
